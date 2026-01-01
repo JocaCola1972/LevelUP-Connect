@@ -21,7 +21,6 @@ export const ScheduleView: React.FC<ScheduleViewProps> = ({ players, bookings, s
         if (isAdmin) {
             setSelectedSlot(slot);
         } else {
-            // Lógica de inscrição rápida para jogadores comuns
             const alreadyInscribed = bookings.some(b => b.slotTime === slot && b.playerIds.includes(loggedPlayer.id));
             
             if (alreadyInscribed) {
@@ -39,7 +38,6 @@ export const ScheduleView: React.FC<ScheduleViewProps> = ({ players, bookings, s
     };
 
     const handleCancel = (bookingId: string, playerId?: string) => {
-        // Se não for admin, só pode cancelar se for o próprio playerId ou se a reserva for dele
         if (!isAdmin && playerId && playerId !== loggedPlayer.id) return;
 
         const booking = bookings.find(b => b.id === bookingId);
@@ -92,63 +90,70 @@ export const ScheduleView: React.FC<ScheduleViewProps> = ({ players, bookings, s
                                 </p>
                             </div>
 
-                            <div className="p-6 flex-1 space-y-4 max-h-[500px] overflow-y-auto custom-scrollbar">
+                            <div className="p-4 flex-1 space-y-3 max-h-[500px] overflow-y-auto custom-scrollbar">
                                 {slotBookings.length > 0 ? (
                                     slotBookings.map(booking => {
                                         const includesMe = booking.playerIds.includes(loggedPlayer.id);
-                                        // Jogadores comuns apenas vêm blocos onde estão incluídos
                                         if (!isAdmin && !includesMe) return null;
 
                                         return (
-                                            <div key={booking.id} className={`border rounded-2xl p-4 group transition-all ${includesMe ? 'bg-lime-500/5 border-lime-500/20' : 'bg-slate-800/40 border-slate-700/50'}`}>
-                                                <div className="flex justify-between items-start mb-3">
-                                                    <span className={`text-[9px] font-black px-2 py-0.5 rounded uppercase ${booking.playerIds.length === 2 ? 'bg-blue-500/20 text-blue-400' : 'bg-orange-500/20 text-orange-400'}`}>
-                                                        {booking.playerIds.length === 2 ? 'Dupla' : 'Solo'}
-                                                    </span>
-                                                    {(isAdmin || includesMe) && (
+                                            <div key={booking.id} className={`border rounded-xl p-3 group transition-all relative ${includesMe ? 'bg-lime-500/5 border-lime-500/30' : 'bg-slate-800/40 border-slate-700/50'}`}>
+                                                <div className="flex items-center justify-between">
+                                                    <div className="flex items-center gap-2 overflow-hidden">
+                                                        {/* Avatars Condensados */}
+                                                        <div className="flex -space-x-2">
+                                                            {booking.playerIds.map((pid, idx) => {
+                                                                const p = players.find(x => x.id === pid);
+                                                                const isMe = pid === loggedPlayer.id;
+                                                                if (!isAdmin && !isMe) return null;
+                                                                return (
+                                                                    <div key={pid} className={`w-7 h-7 rounded-full border-2 border-slate-900 bg-slate-700 flex items-center justify-center text-[8px] font-bold text-white overflow-hidden z-[${20-idx}] ${isMe ? 'border-lime-500' : ''}`}>
+                                                                        {p?.avatar ? <img src={p.avatar} alt="" /> : p?.name.charAt(0)}
+                                                                    </div>
+                                                                );
+                                                            })}
+                                                        </div>
+                                                        
+                                                        {/* Nomes em Linha */}
+                                                        <div className="flex-1 min-w-0">
+                                                            <p className="text-xs font-bold text-white truncate">
+                                                                {booking.playerIds.map((pid, idx) => {
+                                                                    const p = players.find(x => x.id === pid);
+                                                                    const isMe = pid === loggedPlayer.id;
+                                                                    if (!isAdmin && !isMe) return null;
+                                                                    return (
+                                                                        <React.Fragment key={pid}>
+                                                                            <span className={isMe ? 'text-lime-400' : 'text-slate-200'}>
+                                                                                {p?.name.split(' ')[0]}
+                                                                            </span>
+                                                                            {idx < booking.playerIds.length - 1 && (isAdmin || (idx === 0 && booking.playerIds.length > 1 && (isAdmin || booking.playerIds.includes(loggedPlayer.id)))) && (
+                                                                                <span className="text-slate-600 mx-1">/</span>
+                                                                            )}
+                                                                        </React.Fragment>
+                                                                    );
+                                                                })}
+                                                            </p>
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="flex items-center gap-1">
+                                                        {isAdmin && booking.playerIds.length === 1 && (
+                                                            <button 
+                                                                onClick={() => setEditingBooking(booking)}
+                                                                className="p-1.5 text-lime-500 hover:bg-lime-500/10 rounded-md transition-all"
+                                                                title="Adicionar parceiro"
+                                                            >
+                                                                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 4v16m8-8H4"></path></svg>
+                                                            </button>
+                                                        )}
                                                         <button 
                                                             onClick={() => handleCancel(booking.id)}
-                                                            className="text-slate-600 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all"
+                                                            className="p-1.5 text-slate-500 hover:text-red-500 transition-all"
+                                                            title="Cancelar"
                                                         >
-                                                            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" /></svg>
+                                                            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
                                                         </button>
-                                                    )}
-                                                </div>
-                                                <div className="space-y-3">
-                                                    {booking.playerIds.map(pid => {
-                                                        const p = players.find(x => x.id === pid);
-                                                        const isMe = pid === loggedPlayer.id;
-                                                        
-                                                        if (!isAdmin && !isMe) return null;
-
-                                                        return (
-                                                            <div key={pid} className="flex items-center justify-between gap-3 animate-in slide-in-from-left-2 duration-300">
-                                                                <div className="flex items-center gap-3">
-                                                                    <div className={`w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-bold text-white overflow-hidden border ${isMe ? 'border-lime-500 bg-lime-500/20' : 'border-slate-600 bg-slate-700'}`}>
-                                                                        {p?.avatar ? <img src={p.avatar} alt={p.name} /> : p?.name.charAt(0)}
-                                                                    </div>
-                                                                    <div>
-                                                                        <p className={`text-sm font-bold leading-tight ${isMe ? 'text-lime-400' : 'text-white'}`}>{p?.name || 'Atleta'}</p>
-                                                                        <p className="text-[9px] text-slate-500 font-bold uppercase tracking-widest">{p?.level.split(' ')[0]}</p>
-                                                                    </div>
-                                                                </div>
-                                                                <button 
-                                                                    onClick={() => handleCancel(booking.id, pid)}
-                                                                    className="text-[9px] text-slate-500 hover:text-red-400 font-black uppercase tracking-tighter"
-                                                                >
-                                                                    Sair
-                                                                </button>
-                                                            </div>
-                                                        );
-                                                    })}
-                                                    {isAdmin && booking.playerIds.length === 1 && (
-                                                        <button 
-                                                            onClick={() => setEditingBooking(booking)}
-                                                            className="w-full py-2 bg-slate-900/50 border border-dashed border-slate-700 rounded-xl text-[10px] font-bold text-lime-400 uppercase tracking-widest hover:border-lime-500 transition-all"
-                                                        >
-                                                            + Adicionar Parceiro (Admin)
-                                                        </button>
-                                                    )}
+                                                    </div>
                                                 </div>
                                             </div>
                                         );
