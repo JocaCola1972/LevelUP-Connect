@@ -22,6 +22,8 @@ export interface Player {
     side: PreferredSide;
     matchesPlayed: number;
     avatar?: string;
+    password?: string;
+    role: 'admin' | 'player'; // Distinção de privilégios
 }
 
 export interface MatchSuggestion {
