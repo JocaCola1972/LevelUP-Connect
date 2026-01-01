@@ -1,0 +1,7 @@
+{
+  "name": "LevelUP Connect - Gestão de Atletas",
+  "description": "Uma aplicação moderna para registo de jogadores de Padel, gestão de níveis e sugestão de jogos equilibrados através de IA.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
