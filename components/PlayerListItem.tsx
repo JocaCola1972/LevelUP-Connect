@@ -5,9 +5,11 @@ import { Player, PreferredSide } from '../types';
 interface PlayerListItemProps {
     player: Player;
     onDelete: (id: string) => void;
+    isAdmin?: boolean;
+    onResetPassword?: (id: string) => void;
 }
 
-export const PlayerListItem: React.FC<PlayerListItemProps> = ({ player, onDelete }) => {
+export const PlayerListItem: React.FC<PlayerListItemProps> = ({ player, onDelete, isAdmin, onResetPassword }) => {
     const sideColor = player.side === PreferredSide.DRIVE ? 'text-blue-400' : player.side === PreferredSide.REVES ? 'text-orange-400' : 'text-purple-400';
 
     return (
@@ -36,15 +38,28 @@ export const PlayerListItem: React.FC<PlayerListItemProps> = ({ player, onDelete
                 </div>
             </div>
             
-            <button 
-                onClick={() => onDelete(player.id)}
-                className="ml-4 p-2 text-slate-600 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-all"
-                title="Remover Atleta"
-            >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
-                </svg>
-            </button>
+            <div className="flex items-center gap-2">
+                {isAdmin && (
+                    <button 
+                        onClick={() => onResetPassword?.(player.id)}
+                        className="p-2 text-slate-600 hover:text-lime-500 hover:bg-lime-500/10 rounded-lg transition-all"
+                        title="Reset Password"
+                    >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path>
+                        </svg>
+                    </button>
+                )}
+                <button 
+                    onClick={() => onDelete(player.id)}
+                    className="p-2 text-slate-600 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-all"
+                    title="Remover Atleta"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
+                    </svg>
+                </button>
+            </div>
         </div>
     );
 };

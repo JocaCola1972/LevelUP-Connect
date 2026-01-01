@@ -110,6 +110,22 @@ const App: React.FC = () => {
         }
     };
 
+    const handleResetPassword = (id: string) => {
+        if (!isAdmin) return;
+        const player = players.find(p => p.id === id);
+        if (player && window.confirm(`Deseja resetar a password de ${player.name}? O utilizador terá de definir uma nova no próximo acesso.`)) {
+            const updatedPlayers = players.map(p => {
+                if (p.id === id) {
+                    const { password, ...rest } = p;
+                    return { ...rest } as Player;
+                }
+                return p;
+            });
+            setPlayers(updatedPlayers);
+            alert(`Password de ${player.name} removida.`);
+        }
+    };
+
     const handleMatchmaking = async () => {
         if (!isAdmin) return;
         if (players.length < 4) {
@@ -249,8 +265,8 @@ const App: React.FC = () => {
 
                         <div className={viewMode === 'grid' ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" : "flex flex-col gap-3"}>
                             {filteredPlayers.map(player => viewMode === 'grid' 
-                                ? <PlayerCard key={player.id} player={player} onDelete={deletePlayer} /> 
-                                : <PlayerListItem key={player.id} player={player} onDelete={deletePlayer} />
+                                ? <PlayerCard key={player.id} player={player} onDelete={deletePlayer} isAdmin={isAdmin} onResetPassword={handleResetPassword} /> 
+                                : <PlayerListItem key={player.id} player={player} onDelete={deletePlayer} isAdmin={isAdmin} onResetPassword={handleResetPassword} />
                             )}
                         </div>
                     </div>
